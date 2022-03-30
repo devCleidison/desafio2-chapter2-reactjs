@@ -25,8 +25,13 @@ export function Dashboard() {
   const [editingFood, setEditingFood] = useState<Foods>();
 
   useEffect(() => {
-    api.get('foods').then(response => setFoods(response.data));
+    getFoods();
   }, []);
+
+  async function getFoods() {
+    const response = await api.get("/foods");
+    setFoods(response.data);
+  }
 
   function toggleModal() {
     setModalOpen(!modalOpen);
@@ -40,7 +45,7 @@ export function Dashboard() {
     const oldFoods = [...foods];
 
     await api.delete(`/foods/${id}`);
-    const updatedFoods = oldFoods.filter(food => food.id !== id);
+    const updatedFoods = oldFoods.filter((food) => food.id !== id);
 
     setFoods(updatedFoods);
   }
@@ -56,10 +61,10 @@ export function Dashboard() {
     try {
       const updatedFood = await api.put(`/foods/${editingFood?.id}`, {
         ...editingFood,
-        ...food
+        ...food,
       });
 
-      const updatedFoods = oldFoods.map((currentFood) => 
+      const updatedFoods = oldFoods.map((currentFood) =>
         currentFood.id !== updatedFood.data.id ? currentFood : updatedFood.data
       );
 
@@ -72,12 +77,13 @@ export function Dashboard() {
   async function handleAddFood(food: Foods) {
     const updatedFoods = [...foods];
     try {
-      const response = await api.post('/foods', {
+      const response = await api.post("/foods", {
         ...food,
-        available: true
+        available: true,
       });
 
       setFoods([updatedFoods, response.data]);
+      getFoods();
     } catch (error) {
       console.error(error);
     }
